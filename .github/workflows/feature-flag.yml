@@ -1,0 +1,29 @@
+name: Enable Feature Flag
+
+on:
+  workflow_dispatch:
+    inputs:
+      flag_name:
+        description: 'Feature flag name (e.g., high_cpu_usage)'
+        required: true
+        type: string
+      enabled:
+        description: 'Enable or disable the flag'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  toggle-flag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Toggle feature flag
+        run: |
+          curl -X PUT \
+            "http://a60beacbb186747b386a3830915d2976-2087304723.us-east-2.elb.amazonaws.com/feature-flag-service/v1/flags/${{ inputs.flag_name }}" \
+            -H "Content-Type: application/json" \
+            -d '{"enabled": ${{ inputs.enabled }}}'
+        
+      - name: Confirm action
+        run: |
+          echo "Feature flag '${{ inputs.flag_name }}' has been set to: ${{ inputs.enabled }}"
